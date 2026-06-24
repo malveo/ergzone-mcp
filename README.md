@@ -39,12 +39,18 @@ No clone, no `npm install`, no build: `npx` runs it straight from GitHub.
 
 ### Claude Code
 
+Logbook auto-login (option B, simplest):
+
 ```bash
 claude mcp add ergzone \
-  -e ERGZONE_SESSION_TOKEN=SFM... \
+  -e ERGZONE_LOGBOOK_EMAIL=you@example.com \
+  -e ERGZONE_LOGBOOK_PASSWORD=yourpassword \
   -e ERGZONE_TRACK_ID=0e3a990f-d7b2-477a-ac32-16795f7a32e0 \
   -- npx -y github:malveo/ergzone-mcp
 ```
+
+Or with a pasted token (option A): replace the two `LOGBOOK` vars with
+`-e ERGZONE_SESSION_TOKEN=SFM...`.
 
 Pin a version with a tag (recommended, `npx` caches):
 
@@ -63,13 +69,16 @@ Pin a version with a tag (recommended, `npx` caches):
       "command": "npx",
       "args": ["-y", "github:malveo/ergzone-mcp"],
       "env": {
-        "ERGZONE_SESSION_TOKEN": "SFM...",
+        "ERGZONE_LOGBOOK_EMAIL": "you@example.com",
+        "ERGZONE_LOGBOOK_PASSWORD": "yourpassword",
         "ERGZONE_TRACK_ID": "0e3a990f-d7b2-477a-ac32-16795f7a32e0"
       }
     }
   }
 }
 ```
+
+(Option A: use `"ERGZONE_SESSION_TOKEN": "SFM..."` instead of the two `LOGBOOK` vars.)
 
 ### Environment variables (see `.env.example`)
 
