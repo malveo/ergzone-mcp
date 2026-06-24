@@ -9,13 +9,29 @@ Unofficial **MCP** server for **ErgZone** (Concept2 rowing). **Zero runtime depe
 - Node ≥ 18 (tested on Node 26)
 - A valid ErgZone `SESSION_TOKEN` (see below)
 
-## Getting the token
+## Authentication
+
+Two ways, pick one.
+
+### Option A — paste a session token
 
 1. Open `https://admin.erg.zone` and log in (Concept2 Logbook OAuth).
 2. DevTools → Console: `localStorage.SESSION_TOKEN`
 3. Copy the value into `ERGZONE_SESSION_TOKEN`.
 
 The token is a `Phoenix.Token` with an expiry: when it expires the server returns an `auth` error and it must be regenerated.
+
+### Option B — Concept2 Logbook credentials (auto-login)
+
+Set `ERGZONE_LOGBOOK_EMAIL` + `ERGZONE_LOGBOOK_PASSWORD`. The server logs in to ErgZone
+headlessly (pure HTTP, no browser, no extra install), obtains the session token, caches it
+under `~/.config/ergzone-mcp/` (chmod 600) and refreshes it automatically when it expires.
+
+Best UX for non-technical users: set it once, never touch a token again.
+
+> ⚠️ Caveats: this stores your Logbook password and replicates the Logbook login form, so it
+> may break if Concept2 changes that form, and automating a non-SSO login may be against the
+> Concept2/ErgZone Terms of Service. Use Option A if you prefer not to store credentials.
 
 ## Installation
 
@@ -59,10 +75,14 @@ Pin a version with a tag (recommended, `npx` caches):
 
 | Var | Default | Notes |
 |-----|---------|-------|
-| `ERGZONE_SESSION_TOKEN` | — | required |
+| `ERGZONE_SESSION_TOKEN` | — | auth option A (paste a token) |
+| `ERGZONE_LOGBOOK_EMAIL` | — | auth option B (Logbook auto-login) |
+| `ERGZONE_LOGBOOK_PASSWORD` | — | auth option B |
 | `ERGZONE_TRACK_ID` | — | default track for `list_workouts` / `create_workout` |
 | `ERGZONE_ENDPOINT` | `https://production.erg.zone/api` | |
 | `ERGZONE_ALLOW_WRITE` | `true` | `false` = read-only (blocks create/update/delete) |
+
+Provide either `ERGZONE_SESSION_TOKEN` (A) or both `ERGZONE_LOGBOOK_EMAIL` + `ERGZONE_LOGBOOK_PASSWORD` (B).
 
 ## Tools (Tier 1)
 
@@ -135,5 +155,6 @@ bin/ergzone-mcp.mjs   entry (#!/usr/bin/env node)
 src/mcp.mjs           JSON-RPC stdio loop
 src/tools.mjs         tool definitions + handlers
 src/intervals.mjs     interval builder / validation
-src/client.mjs        GraphQL fetch + error normalization
+src/client.mjs        GraphQL fetch + token resolution + error normalization
+src/auth.mjs          headless Logbook login + token cache (modular steps)
 ```
