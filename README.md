@@ -17,34 +17,70 @@ Server **MCP** non ufficiale per **ErgZone** (Concept2 rowing). **Zero dipendenz
 
 Il token è un `Phoenix.Token` con scadenza: quando scade, il server risponde con errore `auth` e va rigenerato.
 
-## Configurazione (Claude Code)
+## Installazione
 
-`~/.claude.json` oppure `.mcp.json` di progetto:
+Nessun clone, nessun `npm install`, nessun build: `npx` esegue direttamente da GitHub.
+
+### Claude Code
+
+```bash
+claude mcp add ergzone \
+  -e ERGZONE_SESSION_TOKEN=SFM... \
+  -e ERGZONE_TRACK_ID=0e3a990f-d7b2-477a-ac32-16795f7a32e0 \
+  -- npx -y github:malveo/ergzone-mcp
+```
+
+Fissa una versione con un tag (consigliato, `npx` cacha):
+
+```bash
+... -- npx -y github:malveo/ergzone-mcp#v0.1.0
+```
+
+### Claude Desktop
+
+`claude_desktop_config.json`:
 
 ```json
 {
   "mcpServers": {
     "ergzone": {
-      "command": "node",
-      "args": ["/Users/xyz/Development/personal/ergzone-mcp/bin/ergzone-mcp.mjs"],
+      "command": "npx",
+      "args": ["-y", "github:malveo/ergzone-mcp"],
       "env": {
-        "ERGZONE_SESSION_TOKEN": "SFMyNTY...",
-        "ERGZONE_TRACK_ID": "0e3a990f-d7b2-477a-ac32-16795f7a32e0",
-        "ERGZONE_ALLOW_WRITE": "true"
+        "ERGZONE_SESSION_TOKEN": "SFM...",
+        "ERGZONE_TRACK_ID": "0e3a990f-d7b2-477a-ac32-16795f7a32e0"
       }
     }
   }
 }
 ```
 
-Variabili (vedi `.env.example`):
+### Da locale (sviluppo)
+
+Clona ed esegui via path:
+
+```json
+{
+  "mcpServers": {
+    "ergzone": {
+      "command": "node",
+      "args": ["bin/ergzone-mcp.mjs"],
+      "env": { "ERGZONE_SESSION_TOKEN": "SFM...", "ERGZONE_TRACK_ID": "..." }
+    }
+  }
+}
+```
+
+(`.mcp.json` di progetto: i path relativi sono risolti rispetto alla cartella del repo.)
+
+### Variabili (vedi `.env.example`)
 
 | Var | Default | Note |
 |-----|---------|------|
 | `ERGZONE_SESSION_TOKEN` | — | obbligatorio |
-| `ERGZONE_TRACK_ID` | — | track di default per list/create |
+| `ERGZONE_TRACK_ID` | — | track di default per `list_workouts` / `create_workout` |
 | `ERGZONE_ENDPOINT` | `https://production.erg.zone/api` | |
-| `ERGZONE_ALLOW_WRITE` | `true` | `false` = solo lettura |
+| `ERGZONE_ALLOW_WRITE` | `true` | `false` = solo lettura (blocca create/update/delete) |
 
 ## Tool (Tier 1)
 
