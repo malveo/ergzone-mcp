@@ -1,25 +1,25 @@
 # ergzone-mcp
 
-Server **MCP** non ufficiale per **ErgZone** (Concept2 rowing). **Zero dipendenze runtime**: solo Node ≥ 18 (usa `fetch` globale e stdio nativi). Un file `.mjs`, nessun `npm install`.
+Unofficial **MCP** server for **ErgZone** (Concept2 rowing). **Zero runtime dependencies**: just Node ≥ 18 (uses the global `fetch` and native stdio). A single `.mjs`, no `npm install`.
 
-> Non affiliato a ErgZone / Concept2. Tool di terze parti per uso personale.
+> Not affiliated with ErgZone / Concept2. Third-party tool for personal use.
 
-## Requisiti
+## Requirements
 
-- Node ≥ 18 (testato su Node 26)
-- Un `SESSION_TOKEN` ErgZone valido (vedi sotto)
+- Node ≥ 18 (tested on Node 26)
+- A valid ErgZone `SESSION_TOKEN` (see below)
 
-## Come ottenere il token
+## Getting the token
 
-1. Apri `https://admin.erg.zone` e fai login (OAuth Concept2 Logbook).
+1. Open `https://admin.erg.zone` and log in (Concept2 Logbook OAuth).
 2. DevTools → Console: `localStorage.SESSION_TOKEN`
-3. Copia il valore in `ERGZONE_SESSION_TOKEN`.
+3. Copy the value into `ERGZONE_SESSION_TOKEN`.
 
-Il token è un `Phoenix.Token` con scadenza: quando scade, il server risponde con errore `auth` e va rigenerato.
+The token is a `Phoenix.Token` with an expiry: when it expires the server returns an `auth` error and it must be regenerated.
 
-## Installazione
+## Installation
 
-Nessun clone, nessun `npm install`, nessun build: `npx` esegue direttamente da GitHub.
+No clone, no `npm install`, no build: `npx` runs it straight from GitHub.
 
 ### Claude Code
 
@@ -30,7 +30,7 @@ claude mcp add ergzone \
   -- npx -y github:malveo/ergzone-mcp
 ```
 
-Fissa una versione con un tag (consigliato, `npx` cacha):
+Pin a version with a tag (recommended, `npx` caches):
 
 ```bash
 ... -- npx -y github:malveo/ergzone-mcp#v0.1.0
@@ -55,48 +55,48 @@ Fissa una versione con un tag (consigliato, `npx` cacha):
 }
 ```
 
-### Variabili (vedi `.env.example`)
+### Environment variables (see `.env.example`)
 
-| Var | Default | Note |
-|-----|---------|------|
-| `ERGZONE_SESSION_TOKEN` | — | obbligatorio |
-| `ERGZONE_TRACK_ID` | — | track di default per `list_workouts` / `create_workout` |
+| Var | Default | Notes |
+|-----|---------|-------|
+| `ERGZONE_SESSION_TOKEN` | — | required |
+| `ERGZONE_TRACK_ID` | — | default track for `list_workouts` / `create_workout` |
 | `ERGZONE_ENDPOINT` | `https://production.erg.zone/api` | |
-| `ERGZONE_ALLOW_WRITE` | `true` | `false` = solo lettura (blocca create/update/delete) |
+| `ERGZONE_ALLOW_WRITE` | `true` | `false` = read-only (blocks create/update/delete) |
 
-## Tool (Tier 1)
+## Tools (Tier 1)
 
-| Tool | Tipo | Descrizione |
+| Tool | Type | Description |
 |------|------|-------------|
-| `auth_check` | 🟢 | verifica token + utente |
-| `list_workouts` | 🟢 | elenca workout di un track |
-| `get_workout` | 🟢 | dettaglio + intervalli |
-| `build_intervals` | 🟢 | anteprima/validazione intervalli (no salvataggio) |
-| `create_workout` | 🟡 | crea workout |
-| `update_workout` | 🟡 | aggiorna workout |
-| `delete_workout` | 🔴 | elimina (richiede `confirm:true`) |
-| `list_my_results` | 🟢 | miei risultati per data |
-| `get_result` | 🟢 | telemetria per intervallo |
-| `my_stats` | 🟢 | aggregati + zone HR |
-| `analyze_result` | 🟢 | pace / SPI / %HR / zona per intervallo |
+| `auth_check` | 🟢 | verify token + user |
+| `list_workouts` | 🟢 | list workouts in a track |
+| `get_workout` | 🟢 | detail + intervals |
+| `build_intervals` | 🟢 | preview/validate intervals (no save) |
+| `create_workout` | 🟡 | create a workout |
+| `update_workout` | 🟡 | update a workout |
+| `delete_workout` | 🔴 | delete (requires `confirm:true`) |
+| `list_my_results` | 🟢 | my results by date |
+| `get_result` | 🟢 | per-interval telemetry |
+| `my_stats` | 🟢 | aggregates + HR zones |
+| `analyze_result` | 🟢 | pace / SPI / %HR / zone per interval |
 
-🟢 lettura · 🟡 scrive dati propri · 🔴 distruttivo (gate `confirm`)
+🟢 read · 🟡 writes own data · 🔴 destructive (gated by `confirm`)
 
-## Builder intervalli
+## Interval builder
 
-`create_workout` / `update_workout` / `build_intervals` accettano **uno** tra:
+`create_workout` / `update_workout` / `build_intervals` accept **one** of:
 
-### `recipe` (alto livello)
+### `recipe` (high level)
 
 ```jsonc
-// SPM ladder 16/17 -> 30/31, 1' rest 20s
+// SPM ladder 16/17 -> 30/31, 1' work, 20s rest
 { "kind": "ladder", "spmStart": 16, "spmEnd": 30 }
 
-// Progressivo intensity: 2 blocchi, ogni step 0.1s/500m piu' veloce del precedente
+// Progressive intensity: 2 blocks, each step 0.1s/500m faster than the previous
 { "kind": "progressive", "blocks": 2, "faster": 0.1,
   "pattern": ["1:00","2:00","1:00","3:00","1:00","4:00"], "restBetween": "4:00" }
 
-// Over/under SPM
+// SPM over/under
 { "kind": "over_under", "restBetween": "1:00",
   "blocks": [
     { "baseWork": "4:00", "baseSpm": 18, "surgeWork": "2:00", "surgeSpm": 22 },
@@ -104,38 +104,36 @@ Fissa una versione con un tag (consigliato, `npx` cacha):
   ] }
 ```
 
-### `segments` (DSL generica)
+### `segments` (generic DSL)
 
 ```jsonc
 [
   { "time": "4:00", "spm": 18 },
   { "time": "2:00", "spm": 22, "rest": "1:00" },
   { "distance": 500, "spm": 24 },
-  { "time": "2:00", "fasterThanPrev": 0.1 },          // 0.1s/500m piu' veloce del precedente
+  { "time": "2:00", "fasterThanPrev": 0.1 },          // 0.1s/500m faster than the previous
   { "time": "2:00", "fasterThan": { "interval": 1, "seconds": 0.2 } },
-  { "time": "2:00", "benchmark": { "group": "A", "offset": -1.5 } }  // rispetto a un PR salvato
+  { "time": "2:00", "benchmark": { "group": "A", "offset": -1.5 } }  // relative to a saved PR
 ]
 ```
 
-Durate: `"M:SS"` o secondi. Il builder gestisce in automatico l'encoding `suggested*`
-(0-based, group `INTERVAL`, operatore `+`, pace negativo = più veloce) e valida prima di salvare.
+Durations: `"M:SS"` or seconds. The builder handles the `suggested*` encoding automatically
+(0-based, group `INTERVAL`, operator `+`, negative pace = faster) and validates before saving.
 
-## Avvio manuale / debug
+## Manual run / debug
 
 ```bash
 ERGZONE_SESSION_TOKEN=... node bin/ergzone-mcp.mjs
 ```
 
-Parla JSON-RPC su stdin/stdout. I log diagnostici vanno su stderr.
+Speaks JSON-RPC over stdin/stdout. Diagnostic logs go to stderr.
 
-## Architettura
+## Architecture
 
 ```
 bin/ergzone-mcp.mjs   entry (#!/usr/bin/env node)
-src/mcp.mjs           loop JSON-RPC stdio
-src/tools.mjs         definizioni tool + handler
-src/intervals.mjs     builder/validazione intervalli
-src/client.mjs        fetch GraphQL + normalizzazione errori
+src/mcp.mjs           JSON-RPC stdio loop
+src/tools.mjs         tool definitions + handlers
+src/intervals.mjs     interval builder / validation
+src/client.mjs        GraphQL fetch + error normalization
 ```
-
-Riferimento schema GraphQL completo: vedi `../allenamento-vogatore/MCP.md`.

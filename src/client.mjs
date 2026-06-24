@@ -1,4 +1,4 @@
-// GraphQL client per ErgZone. Zero dipendenze: usa fetch globale (Node >=18).
+// GraphQL client for ErgZone. Zero dependencies: uses the global fetch (Node >=18).
 
 const ENDPOINT = process.env.ERGZONE_ENDPOINT || 'https://production.erg.zone/api';
 const TOKEN = process.env.ERGZONE_SESSION_TOKEN;
@@ -6,7 +6,7 @@ const TOKEN = process.env.ERGZONE_SESSION_TOKEN;
 export const DEFAULT_TRACK_ID = process.env.ERGZONE_TRACK_ID || '';
 export const WRITE_ENABLED = process.env.ERGZONE_ALLOW_WRITE !== 'false';
 
-// Errore normalizzato: kind = config | network | auth | infra | graphql
+// Normalized error: kind = config | network | auth | infra | graphql
 export class ErgzoneError extends Error {
   constructor(message, { kind = 'graphql', detail } = {}) {
     super(message);
@@ -18,7 +18,7 @@ export class ErgzoneError extends Error {
 
 export async function gql(query, variables = {}) {
   if (!TOKEN) {
-    throw new ErgzoneError('ERGZONE_SESSION_TOKEN non impostato.', { kind: 'config' });
+    throw new ErgzoneError('ERGZONE_SESSION_TOKEN is not set.', { kind: 'config' });
   }
 
   let res;
@@ -32,24 +32,24 @@ export async function gql(query, variables = {}) {
       body: JSON.stringify({ query, variables }),
     });
   } catch (e) {
-    throw new ErgzoneError(`Errore di rete: ${e.message}`, { kind: 'network' });
+    throw new ErgzoneError(`Network error: ${e.message}`, { kind: 'network' });
   }
 
   const text = await res.text();
 
-  // ErgZone restituisce HTML (non-JSON) quando il token e' scaduto o per errori infra.
+  // ErgZone returns HTML (non-JSON) when the token is expired or on infra errors.
   let json;
   try {
     json = JSON.parse(text);
   } catch {
     if (res.status === 401 || res.status === 403 || /login|sign\s*in/i.test(text)) {
       throw new ErgzoneError(
-        'Token scaduto o non valido. Rifai login su admin.erg.zone e aggiorna ERGZONE_SESSION_TOKEN.',
+        'Token expired or invalid. Log in again on admin.erg.zone and update ERGZONE_SESSION_TOKEN.',
         { kind: 'auth', detail: `HTTP ${res.status}` },
       );
     }
     throw new ErgzoneError(
-      `Risposta non-JSON (HTTP ${res.status}). Query troppo grande o errore server.`,
+      `Non-JSON response (HTTP ${res.status}). Query too large or server error.`,
       { kind: 'infra', detail: text.slice(0, 200) },
     );
   }
@@ -64,7 +64,7 @@ export async function gql(query, variables = {}) {
   return json.data;
 }
 
-// Data odierna in formato Date scalar "YYYY-MM-DD".
+// Today's date as a Date scalar "YYYY-MM-DD".
 export function todayISO() {
   const d = new Date();
   const p = (n) => String(n).padStart(2, '0');

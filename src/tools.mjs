@@ -1,12 +1,12 @@
-// Definizioni tool MCP (Tier 1: core training + builder + analisi base).
-// Ogni tool: { name, description, inputSchema, handler, write?, destructive? }
+// MCP tool definitions (Tier 1: core training + builder + basic analysis).
+// Each tool: { name, description, inputSchema, handler, write?, destructive? }
 
 import { gql, todayISO, DEFAULT_TRACK_ID } from './client.mjs';
 import { resolveIntervals, validateIntervals } from './intervals.mjs';
 
-// ---- helper di analisi ----
+// ---- analysis helpers ----
 
-// watt Concept2 da pace (sec/500m). Formula: 2.80 / (pace/500)^3.
+// Concept2 watts from pace (sec/500m). Formula: 2.80 / (pace/500)^3.
 function wattsFromPace(paceSecPer500) {
   if (!paceSecPer500 || paceSecPer500 <= 0) return null;
   return 2.8 / Math.pow(paceSecPer500 / 500, 3);
@@ -28,7 +28,7 @@ function hrZone(pct) {
   return 'Z5';
 }
 
-// ---- frammenti GraphQL riusabili ----
+// ---- reusable GraphQL fragments ----
 
 const INTERVAL_DEF = `type value spm spmMax rest undefRest notes restNotes suggestedInterval suggestedOperator suggestedPace suggestedPaceBenchmarkGroup`;
 const INTERVAL_RESULT = `type value rest distance avgPace avgSpm maxSpm avgWatts maxWatts calories avgHr maxHr minHr hrZones strokeCount rateConsistency driveLength driveTime recoveryTime avgForce peakForce avgDragFactor`;
@@ -36,29 +36,29 @@ const INTERVAL_RESULT = `type value rest distance avgPace avgSpm maxSpm avgWatts
 export const TOOLS = [
   {
     name: 'auth_check',
-    description: 'Verifica il token e mostra l\'utente loggato (id, nome, email, ruolo, HR max/riposo, peso).',
+    description: 'Verify the token and show the logged-in user (id, name, email, max/resting HR, weight).',
     inputSchema: { type: 'object', properties: {} },
     async handler() {
       const d = await gql(`query{ currentUser{ id name email maxHeartRate restingHeartRate weight weightUnit } }`);
-      if (!d.currentUser) throw new Error('Nessun utente: token non valido.');
+      if (!d.currentUser) throw new Error('No user: invalid token.');
       return d.currentUser;
     },
   },
 
   {
     name: 'list_workouts',
-    description: 'Elenca i workout di un track (default: My Workouts). Filtri opzionali: search, limit.',
+    description: 'List the workouts in a track (default: My Workouts). Optional filters: search, limit.',
     inputSchema: {
       type: 'object',
       properties: {
-        trackId: { type: 'string', description: 'Track ID (default da ERGZONE_TRACK_ID)' },
+        trackId: { type: 'string', description: 'Track ID (default from ERGZONE_TRACK_ID)' },
         search: { type: 'string' },
         limit: { type: 'number', default: 50 },
       },
     },
     async handler({ trackId, search, limit = 50 }) {
       const t = trackId || DEFAULT_TRACK_ID;
-      if (!t) throw new Error('Nessun trackId (passa trackId o imposta ERGZONE_TRACK_ID).');
+      if (!t) throw new Error('No trackId (pass trackId or set ERGZONE_TRACK_ID).');
       const d = await gql(
         `query($t:[ID],$s:String){ workouts(trackIds:$t, search:$s){ id title status publishedAt intervalsLength workoutResultsCount } }`,
         { t: [t], s: search || null },
@@ -70,7 +70,7 @@ export const TOOLS = [
 
   {
     name: 'get_workout',
-    description: 'Dettaglio completo di un workout, inclusi tutti gli intervalli.',
+    description: 'Full detail of a workout, including all intervals.',
     inputSchema: {
       type: 'object',
       properties: { id: { type: 'string' } },
@@ -81,7 +81,7 @@ export const TOOLS = [
         `query($id:ID!){ workout(id:$id){ id title status publishedAt description workoutType machineTypes intervals{ ${INTERVAL_DEF} } } }`,
         { id },
       );
-      if (!d.workout) throw new Error(`Workout ${id} non trovato.`);
+      if (!d.workout) throw new Error(`Workout ${id} not found.`);
       return d.workout;
     },
   },
@@ -89,12 +89,12 @@ export const TOOLS = [
   {
     name: 'build_intervals',
     description:
-      'Costruisce e valida intervalli SENZA salvarli (anteprima). Accetta uno tra: segments (DSL), recipe (ladder|over_under|progressive), intervals (raw). Restituisce gli IntervalInput pronti + eventuali errori di validazione.',
+      'Build and validate intervals WITHOUT saving them (preview). Accepts one of: segments (DSL), recipe (ladder|over_under|progressive), intervals (raw). Returns the ready IntervalInput plus any validation errors.',
     inputSchema: {
       type: 'object',
       properties: {
         segments: { type: 'array', items: { type: 'object' } },
-        recipe: { type: 'object', description: 'es. {kind:"ladder", spmStart:16, spmEnd:30} | {kind:"progressive", blocks:2, faster:0.1} | {kind:"over_under", blocks:[...]}' },
+        recipe: { type: 'object', description: 'e.g. {kind:"ladder", spmStart:16, spmEnd:30} | {kind:"progressive", blocks:2, faster:0.1} | {kind:"over_under", blocks:[...]}' },
         intervals: { type: 'array', items: { type: 'object' } },
       },
     },
@@ -108,7 +108,7 @@ export const TOOLS = [
   {
     name: 'create_workout',
     description:
-      'Crea un nuovo workout. Intervalli da segments | recipe | intervals. publishedAt e workoutType riempiti in automatico. Valida prima di inviare e rilegge il risultato (round-trip).',
+      'Create a new workout. Intervals from segments | recipe | intervals. publishedAt and workoutType are filled automatically. Validates before sending and reads the result back (round-trip).',
     write: true,
     inputSchema: {
       type: 'object',
@@ -117,7 +117,7 @@ export const TOOLS = [
         description: { type: 'string' },
         trackId: { type: 'string' },
         status: { type: 'string', default: 'published', description: 'published | draft' },
-        publishedAt: { type: 'string', description: 'YYYY-MM-DD (default: oggi)' },
+        publishedAt: { type: 'string', description: 'YYYY-MM-DD (default: today)' },
         workoutType: { type: 'string', default: 'row' },
         machineTypes: { type: 'array', items: { type: 'string' } },
         segments: { type: 'array', items: { type: 'object' } },
@@ -128,10 +128,10 @@ export const TOOLS = [
     },
     async handler(args) {
       const trackId = args.trackId || DEFAULT_TRACK_ID;
-      if (!trackId) throw new Error('Nessun trackId (passa trackId o imposta ERGZONE_TRACK_ID).');
+      if (!trackId) throw new Error('No trackId (pass trackId or set ERGZONE_TRACK_ID).');
       const intervals = resolveIntervals(args);
       const errors = validateIntervals(intervals);
-      if (errors.length) throw new Error('Intervalli non validi: ' + errors.join('; '));
+      if (errors.length) throw new Error('Invalid intervals: ' + errors.join('; '));
 
       const workout = {
         trackId,
@@ -155,7 +155,7 @@ export const TOOLS = [
 
   {
     name: 'update_workout',
-    description: 'Aggiorna un workout esistente (richiede id). Stessi formati intervalli di create_workout. Se non passi intervalli, aggiorna solo i metadati forniti.',
+    description: 'Update an existing workout (requires id). Same interval formats as create_workout. If no intervals are passed, only the provided metadata is updated.',
     write: true,
     inputSchema: {
       type: 'object',
@@ -174,11 +174,11 @@ export const TOOLS = [
     },
     async handler(args) {
       const trackId = args.trackId || DEFAULT_TRACK_ID;
-      if (!trackId) throw new Error('Nessun trackId.');
+      if (!trackId) throw new Error('No trackId.');
 
-      // Recupera lo stato attuale per i campi non forniti.
+      // Fetch the current state for the fields that are not provided.
       const cur = await gql(`query($id:ID!){ workout(id:$id){ title status publishedAt workoutType description } }`, { id: args.id });
-      if (!cur.workout) throw new Error(`Workout ${args.id} non trovato.`);
+      if (!cur.workout) throw new Error(`Workout ${args.id} not found.`);
 
       const workout = {
         id: args.id,
@@ -197,7 +197,7 @@ export const TOOLS = [
       if (hasIntervals) {
         const intervals = resolveIntervals(args);
         const errors = validateIntervals(intervals);
-        if (errors.length) throw new Error('Intervalli non validi: ' + errors.join('; '));
+        if (errors.length) throw new Error('Invalid intervals: ' + errors.join('; '));
         workout.intervals = intervals;
       }
 
@@ -211,19 +211,19 @@ export const TOOLS = [
 
   {
     name: 'delete_workout',
-    description: 'Elimina un workout. Richiede confirm:true (azione irreversibile).',
+    description: 'Delete a workout. Requires confirm:true (irreversible action).',
     write: true,
     destructive: true,
     inputSchema: {
       type: 'object',
       properties: {
         id: { type: 'string' },
-        confirm: { type: 'boolean', description: 'Deve essere true per procedere.' },
+        confirm: { type: 'boolean', description: 'Must be true to proceed.' },
       },
       required: ['id'],
     },
     async handler({ id, confirm }) {
-      if (confirm !== true) throw new Error('Eliminazione non confermata: passa confirm:true.');
+      if (confirm !== true) throw new Error('Deletion not confirmed: pass confirm:true.');
       const d = await gql(`mutation($id:ID!){ workoutDelete(id:$id){ id title } }`, { id });
       return { deleted: d.workoutDelete };
     },
@@ -231,7 +231,7 @@ export const TOOLS = [
 
   {
     name: 'list_my_results',
-    description: 'Elenca i miei risultati in un intervallo di date (YYYY-MM-DD). Default: ultimi 30 giorni.',
+    description: 'List my results within a date range (YYYY-MM-DD). Default: last 30 days.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -253,7 +253,7 @@ export const TOOLS = [
 
   {
     name: 'get_result',
-    description: 'Dettaglio di un risultato con telemetria per intervallo (pace, SPM, watt, HR, force).',
+    description: 'Detail of a result with per-interval telemetry (pace, SPM, watts, HR, force).',
     inputSchema: {
       type: 'object',
       properties: { id: { type: 'string' } },
@@ -264,14 +264,14 @@ export const TOOLS = [
         `query($id:ID!){ workoutResult(id:$id){ id status ergType elapsedTime elapsedDistance scoreValue workout{ id title } intervals{ ${INTERVAL_RESULT} } } }`,
         { id },
       );
-      if (!d.workoutResult) throw new Error(`Risultato ${id} non trovato.`);
+      if (!d.workoutResult) throw new Error(`Result ${id} not found.`);
       return d.workoutResult;
     },
   },
 
   {
     name: 'my_stats',
-    description: 'Statistiche aggregate (distanza/tempo/calorie/giorni + zone HR) su un periodo. time: "week"|"month"|"year"|"all".',
+    description: 'Aggregate stats (distance/time/calories/days + HR zones) over a period. time: "week"|"month"|"year"|"all".',
     inputSchema: {
       type: 'object',
       properties: {
@@ -292,12 +292,12 @@ export const TOOLS = [
   {
     name: 'analyze_result',
     description:
-      'Analisi coaching di un risultato: per ogni intervallo calcola pace, SPI (watt/SPM), %HR e zona. Usa maxHr passato o quello del profilo.',
+      'Coaching analysis of a result: for each interval computes pace, SPI (watts/SPM), %HR and zone. Uses the passed maxHr or the profile value.',
     inputSchema: {
       type: 'object',
       properties: {
         id: { type: 'string' },
-        maxHr: { type: 'number', description: 'HR max per le zone (default: profilo utente)' },
+        maxHr: { type: 'number', description: 'Max HR for the zones (default: user profile)' },
       },
       required: ['id'],
     },
@@ -307,7 +307,7 @@ export const TOOLS = [
         { id },
       );
       const r = d.workoutResult;
-      if (!r) throw new Error(`Risultato ${id} non trovato.`);
+      if (!r) throw new Error(`Result ${id} not found.`);
 
       let hrMax = maxHr;
       if (!hrMax) {

@@ -1,5 +1,5 @@
-// Loop MCP su stdio (JSON-RPC 2.0, messaggi delimitati da newline).
-// Implementa: initialize, tools/list, tools/call, ping. Zero dipendenze.
+// MCP loop over stdio (JSON-RPC 2.0, newline-delimited messages).
+// Implements: initialize, tools/list, tools/call, ping. Zero dependencies.
 
 import readline from 'node:readline';
 import { TOOLS } from './tools.mjs';
@@ -18,7 +18,7 @@ function fail(id, code, message, data) {
   send({ jsonrpc: '2.0', id, error: { code, message, data } });
 }
 function log(...args) {
-  // stdout e' riservato al protocollo: i log vanno su stderr.
+  // stdout is reserved for the protocol: logs go to stderr.
   process.stderr.write('[ergzone-mcp] ' + args.join(' ') + '\n');
 }
 
@@ -35,7 +35,7 @@ async function handle(msg) {
 
     case 'notifications/initialized':
     case 'initialized':
-      return; // notifica, nessuna risposta
+      return; // notification, no response
 
     case 'ping':
       return reply(id, {});
@@ -51,11 +51,11 @@ async function handle(msg) {
 
     case 'tools/call': {
       const tool = TOOLS.find((t) => t.name === params?.name);
-      if (!tool) return fail(id, -32602, `Tool sconosciuto: ${params?.name}`);
+      if (!tool) return fail(id, -32602, `Unknown tool: ${params?.name}`);
 
       if (tool.write && !WRITE_ENABLED) {
         return reply(id, {
-          content: [{ type: 'text', text: 'Scrittura disabilitata (ERGZONE_ALLOW_WRITE=false).' }],
+          content: [{ type: 'text', text: 'Writes are disabled (ERGZONE_ALLOW_WRITE=false).' }],
           isError: true,
         });
       }
@@ -66,13 +66,13 @@ async function handle(msg) {
         return reply(id, { content: [{ type: 'text', text }] });
       } catch (e) {
         const text =
-          e instanceof ErgzoneError ? `Errore [${e.kind}]: ${e.message}` : `Errore: ${e.message}`;
+          e instanceof ErgzoneError ? `Error [${e.kind}]: ${e.message}` : `Error: ${e.message}`;
         return reply(id, { content: [{ type: 'text', text }], isError: true });
       }
     }
 
     default:
-      if (id !== undefined) return fail(id, -32601, `Metodo non supportato: ${method}`);
+      if (id !== undefined) return fail(id, -32601, `Unsupported method: ${method}`);
   }
 }
 
@@ -85,16 +85,16 @@ export function serve() {
     try {
       msg = JSON.parse(s);
     } catch {
-      return log('JSON invalido:', s.slice(0, 80));
+      return log('invalid JSON:', s.slice(0, 80));
     }
     try {
       await handle(msg);
     } catch (e) {
-      log('crash handler:', e.message);
-      if (msg && msg.id !== undefined) fail(msg.id, -32603, 'Errore interno');
+      log('handler crash:', e.message);
+      if (msg && msg.id !== undefined) fail(msg.id, -32603, 'Internal error');
     }
   });
-  // Niente process.exit() qui: alla chiusura dello stdin lasciamo drenare le
-  // chiamate async in corso; Node esce da solo quando l'event loop e' vuoto.
-  log('avviato. write =', WRITE_ENABLED, 'endpoint =', process.env.ERGZONE_ENDPOINT || 'produzione');
+  // No process.exit() here: when stdin closes we let in-flight async calls drain;
+  // Node exits on its own once the event loop is empty.
+  log('started. write =', WRITE_ENABLED, 'endpoint =', process.env.ERGZONE_ENDPOINT || 'production');
 }
