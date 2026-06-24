@@ -1,66 +1,23 @@
 # ergzone-mcp
 
-Unofficial **MCP** server for **ErgZone** (Concept2 rowing). **Zero runtime dependencies**: just Node ≥ 18 (uses the global `fetch` and native stdio). A single `.mjs`, no `npm install`.
+Unofficial MCP server for [ErgZone](https://www.erg.zone) (Concept2 rowing). Manage workouts, results and stats from your AI assistant. **Zero install, zero dependencies** — runs from GitHub via `npx` (Node ≥ 18).
 
-> Not affiliated with ErgZone / Concept2. Third-party tool for personal use.
+> Not affiliated with ErgZone / Concept2. Personal use.
 
-## Requirements
+## Setup
 
-- Node ≥ 18 (tested on Node 26)
-- A valid ErgZone `SESSION_TOKEN` (see below)
+You need a Concept2 Logbook account (the one you use on log.concept2.com).
 
-## Authentication
-
-Two ways, pick one.
-
-### Option A — paste a session token
-
-1. Open `https://admin.erg.zone` and log in (Concept2 Logbook OAuth).
-2. DevTools → Console: `localStorage.SESSION_TOKEN`
-3. Copy the value into `ERGZONE_SESSION_TOKEN`.
-
-The token is a `Phoenix.Token` with an expiry: when it expires the server returns an `auth` error and it must be regenerated.
-
-### Option B — Concept2 Logbook credentials (auto-login)
-
-Set `ERGZONE_LOGBOOK_EMAIL` + `ERGZONE_LOGBOOK_PASSWORD`. The server logs in to ErgZone
-headlessly (pure HTTP, no browser, no extra install), obtains the session token, caches it
-under `~/.config/ergzone-mcp/` (chmod 600) and refreshes it automatically when it expires.
-
-Best UX for non-technical users: set it once, never touch a token again.
-
-> ⚠️ Caveats: this stores your Logbook password and replicates the Logbook login form, so it
-> may break if Concept2 changes that form, and automating a non-SSO login may be against the
-> Concept2/ErgZone Terms of Service. Use Option A if you prefer not to store credentials.
-
-## Installation
-
-No clone, no `npm install`, no build: `npx` runs it straight from GitHub.
-
-### Claude Code
-
-Logbook auto-login (option B, simplest):
+**Claude Code:**
 
 ```bash
 claude mcp add ergzone \
   -e ERGZONE_LOGBOOK_EMAIL=you@example.com \
   -e ERGZONE_LOGBOOK_PASSWORD=yourpassword \
-  -e ERGZONE_TRACK_ID=0e3a990f-d7b2-477a-ac32-16795f7a32e0 \
   -- npx -y github:malveo/ergzone-mcp
 ```
 
-Or with a pasted token (option A): replace the two `LOGBOOK` vars with
-`-e ERGZONE_SESSION_TOKEN=SFM...`.
-
-Pin a version with a tag (recommended, `npx` caches):
-
-```bash
-... -- npx -y github:malveo/ergzone-mcp#v0.1.0
-```
-
-### Claude Desktop
-
-`claude_desktop_config.json`:
+**Claude Desktop** — add to `claude_desktop_config.json`:
 
 ```json
 {
@@ -70,100 +27,42 @@ Pin a version with a tag (recommended, `npx` caches):
       "args": ["-y", "github:malveo/ergzone-mcp"],
       "env": {
         "ERGZONE_LOGBOOK_EMAIL": "you@example.com",
-        "ERGZONE_LOGBOOK_PASSWORD": "yourpassword",
-        "ERGZONE_TRACK_ID": "0e3a990f-d7b2-477a-ac32-16795f7a32e0"
+        "ERGZONE_LOGBOOK_PASSWORD": "yourpassword"
       }
     }
   }
 }
 ```
 
-(Option A: use `"ERGZONE_SESSION_TOKEN": "SFM..."` instead of the two `LOGBOOK` vars.)
+The server logs in for you and caches the token (`~/.config/ergzone-mcp/`, refreshed on expiry).
+Prefer not to store your password? Use `ERGZONE_SESSION_TOKEN` instead (copied from
+`localStorage.SESSION_TOKEN` on admin.erg.zone).
 
-### Environment variables (see `.env.example`)
+## Tools
 
-| Var | Default | Notes |
-|-----|---------|-------|
-| `ERGZONE_SESSION_TOKEN` | — | auth option A (paste a token) |
-| `ERGZONE_LOGBOOK_EMAIL` | — | auth option B (Logbook auto-login) |
-| `ERGZONE_LOGBOOK_PASSWORD` | — | auth option B |
-| `ERGZONE_TRACK_ID` | — | default track for `list_workouts` / `create_workout` |
-| `ERGZONE_ENDPOINT` | `https://production.erg.zone/api` | |
-| `ERGZONE_ALLOW_WRITE` | `true` | `false` = read-only (blocks create/update/delete) |
+| Tool | What it does |
+|------|------|
+| `auth_check` | who am I |
+| `list_workouts` / `get_workout` | browse workouts |
+| `create_workout` / `update_workout` / `delete_workout` | manage workouts |
+| `build_intervals` | preview intervals before saving |
+| `list_my_results` / `get_result` | your sessions + telemetry |
+| `my_stats` / `analyze_result` | totals, HR zones, pace/SPI per interval |
 
-Provide either `ERGZONE_SESSION_TOKEN` (A) or both `ERGZONE_LOGBOOK_EMAIL` + `ERGZONE_LOGBOOK_PASSWORD` (B).
+Ask in plain language, e.g. *"create an SPM ladder 16 to 30"* or *"analyze my last result"*.
 
-## Tools (Tier 1)
+## Settings
 
-| Tool | Type | Description |
-|------|------|-------------|
-| `auth_check` | 🟢 | verify token + user |
-| `list_workouts` | 🟢 | list workouts in a track |
-| `get_workout` | 🟢 | detail + intervals |
-| `build_intervals` | 🟢 | preview/validate intervals (no save) |
-| `create_workout` | 🟡 | create a workout |
-| `update_workout` | 🟡 | update a workout |
-| `delete_workout` | 🔴 | delete (requires `confirm:true`) |
-| `list_my_results` | 🟢 | my results by date |
-| `get_result` | 🟢 | per-interval telemetry |
-| `my_stats` | 🟢 | aggregates + HR zones |
-| `analyze_result` | 🟢 | pace / SPI / %HR / zone per interval |
+| Var | Notes |
+|-----|------|
+| `ERGZONE_LOGBOOK_EMAIL` + `ERGZONE_LOGBOOK_PASSWORD` | auto-login (recommended) |
+| `ERGZONE_SESSION_TOKEN` | alternative to the two above |
+| `ERGZONE_TRACK_ID` | default workout list (optional) |
+| `ERGZONE_ALLOW_WRITE` | `false` = read-only |
 
-🟢 read · 🟡 writes own data · 🔴 destructive (gated by `confirm`)
+## Notes
 
-## Interval builder
+Auto-login stores your Logbook password and replicates the Logbook sign-in, so it may break if
+Concept2 changes that page, and automating login may be against their Terms of Service.
 
-`create_workout` / `update_workout` / `build_intervals` accept **one** of:
-
-### `recipe` (high level)
-
-```jsonc
-// SPM ladder 16/17 -> 30/31, 1' work, 20s rest
-{ "kind": "ladder", "spmStart": 16, "spmEnd": 30 }
-
-// Progressive intensity: 2 blocks, each step 0.1s/500m faster than the previous
-{ "kind": "progressive", "blocks": 2, "faster": 0.1,
-  "pattern": ["1:00","2:00","1:00","3:00","1:00","4:00"], "restBetween": "4:00" }
-
-// SPM over/under
-{ "kind": "over_under", "restBetween": "1:00",
-  "blocks": [
-    { "baseWork": "4:00", "baseSpm": 18, "surgeWork": "2:00", "surgeSpm": 22 },
-    { "baseWork": "4:00", "baseSpm": 20, "surgeWork": "2:00", "surgeSpm": 24 }
-  ] }
-```
-
-### `segments` (generic DSL)
-
-```jsonc
-[
-  { "time": "4:00", "spm": 18 },
-  { "time": "2:00", "spm": 22, "rest": "1:00" },
-  { "distance": 500, "spm": 24 },
-  { "time": "2:00", "fasterThanPrev": 0.1 },          // 0.1s/500m faster than the previous
-  { "time": "2:00", "fasterThan": { "interval": 1, "seconds": 0.2 } },
-  { "time": "2:00", "benchmark": { "group": "A", "offset": -1.5 } }  // relative to a saved PR
-]
-```
-
-Durations: `"M:SS"` or seconds. The builder handles the `suggested*` encoding automatically
-(0-based, group `INTERVAL`, operator `+`, negative pace = faster) and validates before saving.
-
-## Manual run / debug
-
-```bash
-ERGZONE_SESSION_TOKEN=... node bin/ergzone-mcp.mjs
-```
-
-Speaks JSON-RPC over stdin/stdout. Diagnostic logs go to stderr.
-
-## Architecture
-
-```
-bin/ergzone-mcp.mjs   entry (#!/usr/bin/env node)
-src/mcp.mjs           JSON-RPC stdio loop
-src/tools.mjs         tool definitions + handlers
-src/intervals.mjs     interval builder / validation
-src/client.mjs        GraphQL fetch + token resolution + error normalization
-src/auth.mjs          headless Logbook login + token cache (modular steps)
-```
+MIT licensed.
