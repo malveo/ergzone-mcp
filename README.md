@@ -55,24 +55,6 @@ Fissa una versione con un tag (consigliato, `npx` cacha):
 }
 ```
 
-### Da locale (sviluppo)
-
-Clona ed esegui via path:
-
-```json
-{
-  "mcpServers": {
-    "ergzone": {
-      "command": "node",
-      "args": ["bin/ergzone-mcp.mjs"],
-      "env": { "ERGZONE_SESSION_TOKEN": "SFM...", "ERGZONE_TRACK_ID": "..." }
-    }
-  }
-}
-```
-
-(`.mcp.json` di progetto: i path relativi sono risolti rispetto alla cartella del repo.)
-
 ### Variabili (vedi `.env.example`)
 
 | Var | Default | Note |
