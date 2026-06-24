@@ -1,0 +1,22 @@
+{
+  "name": "ergzone-mcp",
+  "version": "0.1.0",
+  "description": "Unofficial MCP server for ErgZone (Concept2 rowing). Zero runtime dependencies.",
+  "type": "module",
+  "bin": {
+    "ergzone-mcp": "./bin/ergzone-mcp.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "files": [
+    "bin",
+    "src",
+    "README.md"
+  ],
+  "scripts": {
+    "start": "node bin/ergzone-mcp.mjs"
+  },
+  "license": "MIT",
+  "private": true
+}
