@@ -172,7 +172,10 @@ export async function loginWithLogbook({ email, password }, cfg = AUTH_CONFIG) {
 // --- token cache (file, 0600) ---
 
 export function cacheDir() {
-  const base = process.env.XDG_CONFIG_HOME || join(homedir(), '.config');
+  // Platform-aware base: %APPDATA% on Windows, XDG/~/.config elsewhere.
+  const base = process.platform === 'win32'
+    ? (process.env.APPDATA || join(homedir(), 'AppData', 'Roaming'))
+    : (process.env.XDG_CONFIG_HOME || join(homedir(), '.config'));
   return join(base, 'ergzone-mcp');
 }
 

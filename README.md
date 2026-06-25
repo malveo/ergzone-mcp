@@ -65,4 +65,7 @@ Ask in plain language, e.g. *"create an SPM ladder 16 to 30"* or *"analyze my la
 Auto-login stores your Logbook password and replicates the Logbook sign-in, so it may break if
 Concept2 changes that page, and automating login may be against their Terms of Service.
 
+Works on macOS, Linux and Windows (Node ≥ 18.7). On Windows the `npx github:...` form needs
+[Git](https://git-scm.com) installed; the token cache lives under `%APPDATA%\ergzone-mcp`.
+
 MIT licensed.
