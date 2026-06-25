@@ -1,6 +1,6 @@
 # ergzone-mcp
 
-Unofficial MCP server for [ErgZone](https://www.erg.zone) (Concept2 rowing). Manage workouts, results and stats from your AI assistant. **Zero install, zero dependencies** — runs from GitHub via `npx` (Node ≥ 18).
+Unofficial MCP server for [ErgZone](https://www.erg.zone) (Concept2 rowing). Manage workouts, results and stats from your AI assistant. **Zero install, zero dependencies** — runs via `npx` from npm (Node ≥ 18).
 
 > Not affiliated with ErgZone / Concept2. Personal use.
 
@@ -24,7 +24,7 @@ claude mcp add ergzone \
   "mcpServers": {
     "ergzone": {
       "command": "npx",
-      "args": ["-y", "github:malveo/ergzone-mcp"],
+      "args": ["-y", "ergzone-mcp"],
       "env": {
         "ERGZONE_LOGBOOK_EMAIL": "you@example.com",
         "ERGZONE_LOGBOOK_PASSWORD": "yourpassword"
