@@ -4,6 +4,19 @@
     "@semantic-release/commit-analyzer",
     "@semantic-release/release-notes-generator",
     "@semantic-release/npm",
-    "@semantic-release/github"
+    [
+      "@semantic-release/exec",
+      {
+        "prepareCmd": "node scripts/set-manifest-version.mjs ${nextRelease.version} && npx -y @anthropic-ai/mcpb pack . ergzone-mcp.mcpb"
+      }
+    ],
+    [
+      "@semantic-release/github",
+      {
+        "assets": [
+          { "path": "ergzone-mcp.mcpb", "label": "Claude Desktop one-click bundle (.mcpb)" }
+        ]
+      }
+    ]
   ]
 }

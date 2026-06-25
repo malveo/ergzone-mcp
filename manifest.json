@@ -1,0 +1,63 @@
+{
+  "manifest_version": "0.2",
+  "name": "ergzone-mcp",
+  "display_name": "ErgZone",
+  "version": "0.0.0",
+  "description": "Manage ErgZone (Concept2 rowing) workouts, results and stats from Claude.",
+  "long_description": "Unofficial MCP server for ErgZone. Browse and create workouts (including interval builders), read your results with per-interval telemetry, and check stats. Logs in to ErgZone for you using your Concept2 Logbook account.",
+  "author": {
+    "name": "Mauro Malvestio"
+  },
+  "homepage": "https://github.com/malveo/ergzone-mcp",
+  "documentation": "https://github.com/malveo/ergzone-mcp#readme",
+  "license": "MIT",
+  "keywords": [
+    "ergzone",
+    "concept2",
+    "rowing",
+    "erg",
+    "mcp"
+  ],
+  "server": {
+    "type": "node",
+    "entry_point": "bin/ergzone-mcp.mjs",
+    "mcp_config": {
+      "command": "node",
+      "args": [
+        "${__dirname}/bin/ergzone-mcp.mjs"
+      ],
+      "env": {
+        "ERGZONE_LOGBOOK_EMAIL": "${user_config.email}",
+        "ERGZONE_LOGBOOK_PASSWORD": "${user_config.password}",
+        "ERGZONE_TRACK_ID": "${user_config.track_id}"
+      }
+    }
+  },
+  "user_config": {
+    "email": {
+      "type": "string",
+      "title": "Concept2 Logbook email or username",
+      "description": "The account you use to log in at log.concept2.com",
+      "required": true
+    },
+    "password": {
+      "type": "string",
+      "title": "Concept2 Logbook password",
+      "description": "Your log.concept2.com password (stored locally, used to log in)",
+      "sensitive": true,
+      "required": true
+    },
+    "track_id": {
+      "type": "string",
+      "title": "Default workout list (optional)",
+      "description": "Leave as is unless you know your ErgZone track ID",
+      "required": false,
+      "default": "0e3a990f-d7b2-477a-ac32-16795f7a32e0"
+    }
+  },
+  "compatibility": {
+    "runtimes": {
+      "node": ">=18.7"
+    }
+  }
+}

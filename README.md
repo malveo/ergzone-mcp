@@ -12,7 +12,15 @@ Unofficial MCP server for [ErgZone](https://www.erg.zone) (Concept2 rowing). Man
 
 You need a Concept2 Logbook account (the one you use on log.concept2.com).
 
-**Claude Code:**
+### Claude Desktop — one-click (no terminal)
+
+1. Download `ergzone-mcp.mcpb` from the [latest release](https://github.com/malveo/ergzone-mcp/releases/latest).
+2. Double-click it (or drag it into Claude Desktop → Settings → Extensions).
+3. Type your Logbook email and password in the form. Done.
+
+Nothing to install — no Node, no terminal, no config files.
+
+### Claude Code (terminal)
 
 ```bash
 claude mcp add ergzone \
@@ -21,7 +29,9 @@ claude mcp add ergzone \
   -- npx -y ergzone-mcp
 ```
 
-**Claude Desktop** — add to `claude_desktop_config.json`:
+### Claude Desktop — manual config
+
+Add to `claude_desktop_config.json`:
 
 ```json
 {

@@ -1,0 +1,11 @@
+.git
+.github
+.gitignore
+.mcp.json
+.mcpbignore
+.releaserc.json
+.env
+.env.example
+scripts
+node_modules
+*.mcpb
