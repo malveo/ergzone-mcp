@@ -1,5 +1,9 @@
 # ergzone-mcp
 
+[![Release](https://github.com/malveo/ergzone-mcp/actions/workflows/release.yml/badge.svg)](https://github.com/malveo/ergzone-mcp/actions/workflows/release.yml)
+[![npm version](https://img.shields.io/npm/v/ergzone-mcp.svg)](https://www.npmjs.com/package/ergzone-mcp)
+[![license](https://img.shields.io/npm/l/ergzone-mcp.svg)](LICENSE)
+
 Unofficial MCP server for [ErgZone](https://www.erg.zone) (Concept2 rowing). Manage workouts, results and stats from your AI assistant. **Zero install, zero dependencies** — runs via `npx` from npm (Node ≥ 18).
 
 > Not affiliated with ErgZone / Concept2. Personal use.
