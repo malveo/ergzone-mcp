@@ -1,6 +1,6 @@
 {
   "name": "ergzone-mcp",
-  "version": "0.1.0",
+  "version": "0.0.0-development",
   "description": "Unofficial MCP server for ErgZone (Concept2 rowing). Zero runtime dependencies.",
   "type": "module",
   "bin": {
@@ -22,6 +22,21 @@
   "scripts": {
     "start": "node bin/ergzone-mcp.mjs"
   },
-  "license": "MIT",
-  "private": true
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/malveo/ergzone-mcp.git"
+  },
+  "homepage": "https://github.com/malveo/ergzone-mcp#readme",
+  "bugs": {
+    "url": "https://github.com/malveo/ergzone-mcp/issues"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "ergzone",
+    "concept2",
+    "rowing",
+    "erg"
+  ],
+  "license": "MIT"
 }
