@@ -14,7 +14,7 @@ You need a Concept2 Logbook account (the one you use on log.concept2.com).
 claude mcp add ergzone \
   -e ERGZONE_LOGBOOK_EMAIL=you@example.com \
   -e ERGZONE_LOGBOOK_PASSWORD=yourpassword \
-  -- npx -y github:malveo/ergzone-mcp
+  -- npx -y ergzone-mcp
 ```
 
 **Claude Desktop** — add to `claude_desktop_config.json`:
@@ -65,7 +65,7 @@ Ask in plain language, e.g. *"create an SPM ladder 16 to 30"* or *"analyze my la
 Auto-login stores your Logbook password and replicates the Logbook sign-in, so it may break if
 Concept2 changes that page, and automating login may be against their Terms of Service.
 
-Works on macOS, Linux and Windows (Node ≥ 18.7). On Windows the `npx github:...` form needs
-[Git](https://git-scm.com) installed; the token cache lives under `%APPDATA%\ergzone-mcp`.
+Works on macOS, Linux and Windows (Node ≥ 18.7). The token cache lives under
+`~/.config/ergzone-mcp` (macOS/Linux) or `%APPDATA%\ergzone-mcp` (Windows).
 
 MIT licensed.
