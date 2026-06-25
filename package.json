@@ -38,5 +38,9 @@
     "rowing",
     "erg"
   ],
-  "license": "MIT"
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  }
 }
