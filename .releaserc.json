@@ -7,7 +7,7 @@
     [
       "@semantic-release/exec",
       {
-        "prepareCmd": "node scripts/set-manifest-version.mjs ${nextRelease.version} && npx -y @anthropic-ai/mcpb pack . ergzone-mcp.mcpb"
+        "prepareCmd": "node scripts/set-manifest-version.mjs ${nextRelease.version} && npx -y -p @anthropic-ai/mcpb mcpb pack . ergzone-mcp.mcpb"
       }
     ],
     [
