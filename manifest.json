@@ -50,9 +50,8 @@
     "track_id": {
       "type": "string",
       "title": "Default workout list (optional)",
-      "description": "Leave as is unless you know your ErgZone track ID",
-      "required": false,
-      "default": "0e3a990f-d7b2-477a-ac32-16795f7a32e0"
+      "description": "Leave empty to auto-detect your My Workouts track. Set only to target a different ErgZone track ID.",
+      "required": false
     }
   },
   "compatibility": {
