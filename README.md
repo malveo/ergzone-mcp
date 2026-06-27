@@ -16,9 +16,9 @@ You need a Concept2 Logbook account (the one you use on log.concept2.com).
 
 1. Download `ergzone-mcp.mcpb` from the [latest release](https://github.com/malveo/ergzone-mcp/releases/latest).
 2. Double-click it (or drag it into Claude Desktop → Settings → Extensions).
-3. Type your Logbook email and password in the form. Done.
+3. Type your Logbook email and password in the form, and make sure the extension is **enabled**. Done.
 
-Nothing to install — no Node, no terminal, no config files.
+Nothing to install — no Node, no terminal, no config files. Full walkthrough with screenshots: [docs/claude-desktop.md](docs/claude-desktop.md).
 
 ### Claude Code (terminal)
 
@@ -63,7 +63,19 @@ Prefer not to store your password? Use `ERGZONE_SESSION_TOKEN` instead (copied f
 | `list_my_results` / `get_result` | your sessions + telemetry |
 | `my_stats` / `analyze_result` | totals, HR zones, pace/SPI per interval |
 
-Ask in plain language, e.g. *"create an SPM ladder 16 to 30"* or *"analyze my last result"*.
+## Example prompts
+
+Just talk to Claude in plain language:
+
+- **Check it works** — *"Am I connected to ErgZone? Who am I?"*
+- **Browse** — *"List my ErgZone workouts."*
+- **Build (preview, nothing saved)** — *"Show me an SPM ladder from 16 to 30 spm, 1 min each."*
+- **Create** — *"Create a workout 'Tuesday tempo' with 3 × 2 min at 22 spm, 1 min rest."*
+- **Progressive intensity** — *"Build a workout: 2 blocks of 1-2-1-3-1-4 minutes, each interval 0.1s/500m faster than the previous, 4 min rest between blocks."*
+- **Results** — *"Show my last few ErgZone results."*
+- **Analysis** — *"Analyze my last result: pace, SPI and HR zone per interval."*
+- **Stats** — *"How many meters did I row this month?"*
+- **Tidy up** — *"Delete the workout 'Tuesday tempo'."*
 
 ## Settings
 
