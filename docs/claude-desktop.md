@@ -2,6 +2,14 @@
 
 A step-by-step guide to install and configure the ErgZone extension (`.mcpb`) in Claude Desktop. No terminal, no Node, no config files.
 
+## 0. Download the bundle
+
+Download the latest extension here:
+
+➡️ **[Download ergzone-mcp.mcpb](https://github.com/malveo/ergzone-mcp/releases/latest/download/ergzone-mcp.mcpb)**
+
+(This link always points to the newest release.)
+
 ## 1. Open Extensions
 
 In Claude Desktop go to **Settings → Extensions** (under "Desktop app").
@@ -10,7 +18,7 @@ In Claude Desktop go to **Settings → Extensions** (under "Desktop app").
 
 ## 2. Install the bundle
 
-Download `ergzone-mcp.mcpb` from the [latest release](https://github.com/malveo/ergzone-mcp/releases/latest), then **drag it onto the Extensions window** (or double-click the file).
+**Drag the downloaded `ergzone-mcp.mcpb` onto the Extensions window** (or double-click the file).
 
 You'll see a confirmation screen. Because it's a third-party extension, Claude warns that it can access your computer — install only if you trust the source. Click **Install**.
 

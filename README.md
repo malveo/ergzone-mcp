@@ -14,7 +14,7 @@ You need a Concept2 Logbook account (the one you use on log.concept2.com).
 
 ### Claude Desktop — one-click (no terminal)
 
-1. Download `ergzone-mcp.mcpb` from the [latest release](https://github.com/malveo/ergzone-mcp/releases/latest).
+1. [Download `ergzone-mcp.mcpb`](https://github.com/malveo/ergzone-mcp/releases/latest/download/ergzone-mcp.mcpb) (direct link, always the latest).
 2. Double-click it (or drag it into Claude Desktop → Settings → Extensions).
 3. Type your Logbook email and password in the form, and make sure the extension is **enabled**. Done.
 
