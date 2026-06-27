@@ -36,7 +36,7 @@ Click **Save**.
 
 Make sure the **Enabled** toggle is **on**. This is required — if it's off, the server never starts and no tools appear.
 
-![Enabled and configured](images/05-enabled.png)
+![Extension enabled](images/05-enabled.png)
 
 ## 5. (Optional) Tool permissions
 
