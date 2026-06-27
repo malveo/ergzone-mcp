@@ -1,7 +1,7 @@
 // MCP tool definitions (Tier 1: core training + builder + basic analysis).
 // Each tool: { name, description, inputSchema, handler, write?, destructive? }
 
-import { gql, todayISO, DEFAULT_TRACK_ID } from './client.mjs';
+import { gql, todayISO, resolveTrackId } from './client.mjs';
 import { resolveIntervals, validateIntervals } from './intervals.mjs';
 
 // ---- analysis helpers ----
@@ -47,18 +47,17 @@ export const TOOLS = [
 
   {
     name: 'list_workouts',
-    description: 'List the workouts in a track (default: My Workouts). Optional filters: search, limit.',
+    description: 'List the workouts in a track (defaults to your "My Workouts" track, auto-detected). Optional filters: search, limit.',
     inputSchema: {
       type: 'object',
       properties: {
-        trackId: { type: 'string', description: 'Track ID (default from ERGZONE_TRACK_ID)' },
+        trackId: { type: 'string', description: 'Track ID (default: auto-detected My Workouts)' },
         search: { type: 'string' },
         limit: { type: 'number', default: 50 },
       },
     },
     async handler({ trackId, search, limit = 50 }) {
-      const t = trackId || DEFAULT_TRACK_ID;
-      if (!t) throw new Error('No trackId (pass trackId or set ERGZONE_TRACK_ID).');
+      const t = await resolveTrackId(trackId);
       const d = await gql(
         `query($t:[ID],$s:String){ workouts(trackIds:$t, search:$s){ id title status publishedAt intervalsLength workoutResultsCount } }`,
         { t: [t], s: search || null },
@@ -127,8 +126,7 @@ export const TOOLS = [
       required: ['title'],
     },
     async handler(args) {
-      const trackId = args.trackId || DEFAULT_TRACK_ID;
-      if (!trackId) throw new Error('No trackId (pass trackId or set ERGZONE_TRACK_ID).');
+      const trackId = await resolveTrackId(args.trackId);
       const intervals = resolveIntervals(args);
       const errors = validateIntervals(intervals);
       if (errors.length) throw new Error('Invalid intervals: ' + errors.join('; '));
@@ -173,8 +171,7 @@ export const TOOLS = [
       required: ['id'],
     },
     async handler(args) {
-      const trackId = args.trackId || DEFAULT_TRACK_ID;
-      if (!trackId) throw new Error('No trackId.');
+      const trackId = await resolveTrackId(args.trackId);
 
       // Fetch the current state for the fields that are not provided.
       const cur = await gql(`query($id:ID!){ workout(id:$id){ title status publishedAt workoutType description } }`, { id: args.id });

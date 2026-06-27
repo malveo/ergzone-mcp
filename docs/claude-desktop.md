@@ -56,4 +56,4 @@ If it replies with your name, you're set. See more [example prompts](../README.m
 
 - **No ErgZone tools in chat** → the extension is probably disabled (step 4) or the credentials aren't saved (step 3).
 - **"Token expired / login failed"** → re-check the Logbook password in Configure.
-- **`list_workouts` says no track** → fill the **Default workout list** field with your ErgZone track ID, or just ask Claude to find your "My Workouts" track.
+- **Wrong workout list** → by default the extension auto-detects your personal "My Workouts" track. Set the **Default workout list** field only if you want a different track.

@@ -14,7 +14,6 @@ const LOGBOOK = {
   password: process.env.ERGZONE_LOGBOOK_PASSWORD || null,
 };
 
-export const DEFAULT_TRACK_ID = process.env.ERGZONE_TRACK_ID || '';
 export const WRITE_ENABLED = process.env.ERGZONE_ALLOW_WRITE !== 'false';
 
 // Normalized error: kind = config | network | auth | infra | graphql
@@ -108,4 +107,25 @@ export function todayISO() {
   const d = new Date();
   const p = (n) => String(n).padStart(2, '0');
   return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+}
+
+// Resolve the track to use, in order: explicit arg -> ERGZONE_TRACK_ID -> auto-discover
+// the user's personal "My Workouts" track. Discovery result is cached in memory.
+let trackIdCache = null;
+export async function resolveTrackId(explicit) {
+  if (explicit) return explicit;
+  if (process.env.ERGZONE_TRACK_ID) return process.env.ERGZONE_TRACK_ID;
+  if (trackIdCache) return trackIdCache;
+
+  const data = await gql('query{ tracks(onlyAdmin:true){ id name trackMode type isOwner } }');
+  const tracks = data.tracks || [];
+  const personal =
+    tracks.find((t) => t.trackMode === 'single-user' && t.isOwner) ||
+    tracks.find((t) => t.type === 'private') ||
+    tracks[0];
+  if (!personal) {
+    throw new ErgzoneError('No personal track found. Set ERGZONE_TRACK_ID.', { kind: 'config' });
+  }
+  trackIdCache = personal.id;
+  return trackIdCache;
 }
