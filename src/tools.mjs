@@ -46,6 +46,45 @@ export const TOOLS = [
   },
 
   {
+    name: 'update_profile',
+    description:
+      'Update your profile settings: max HR, resting HR, weight, weight unit. Only the fields you pass are changed (others are left untouched). Sets these on the account so analyze_result and the HR zones use them automatically.',
+    write: true,
+    inputSchema: {
+      type: 'object',
+      properties: {
+        maxHeartRate: { type: 'number', description: 'Max heart rate (bpm), integer' },
+        restingHeartRate: { type: 'number', description: 'Resting heart rate (bpm), integer' },
+        weight: { type: 'number', description: 'Body weight, integer in the chosen weightUnit' },
+        weightUnit: { type: 'string', enum: ['kg', 'lbs'], description: 'Weight unit: kg or lbs' },
+      },
+    },
+    async handler(args) {
+      const settings = {};
+      // Send only provided fields so unspecified ones are not overwritten.
+      // maxHeartRate / restingHeartRate accept null to clear the value.
+      if ('maxHeartRate' in args) settings.maxHeartRate = args.maxHeartRate == null ? null : Math.round(args.maxHeartRate);
+      if ('restingHeartRate' in args) settings.restingHeartRate = args.restingHeartRate == null ? null : Math.round(args.restingHeartRate);
+      if ('weight' in args) settings.weight = args.weight == null ? null : Math.round(args.weight);
+      if ('weightUnit' in args) settings.weightUnit = args.weightUnit;
+
+      if (Object.keys(settings).length === 0) {
+        throw new Error('Nothing to update: pass at least one of maxHeartRate, restingHeartRate, weight, weightUnit.');
+      }
+      if (settings.weightUnit != null && !['kg', 'lbs'].includes(settings.weightUnit)) {
+        throw new Error('weightUnit must be "kg" or "lbs".');
+      }
+
+      const d = await gql(
+        `mutation($s:SettingsInput!){ settingsUpdate(settings:$s){ id name email maxHeartRate restingHeartRate weight weightUnit } }`,
+        { s: settings },
+      );
+      if (!d.settingsUpdate) throw new Error('Profile update failed.');
+      return { updated: d.settingsUpdate };
+    },
+  },
+
+  {
     name: 'list_workouts',
     description: 'List the workouts in a track (defaults to your "My Workouts" track, auto-detected). Optional filters: search, limit.',
     inputSchema: {
