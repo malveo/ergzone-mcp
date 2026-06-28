@@ -57,6 +57,7 @@ Prefer not to store your password? Use `ERGZONE_SESSION_TOKEN` instead (copied f
 | Tool | What it does |
 |------|------|
 | `auth_check` | who am I |
+| `update_profile` | set max HR, resting HR, weight, weight unit |
 | `list_workouts` / `get_workout` | browse workouts |
 | `create_workout` / `update_workout` / `delete_workout` | manage workouts |
 | `build_intervals` | preview intervals before saving |
@@ -73,6 +74,7 @@ Just talk to Claude in plain language:
 - **Create** — *"Create a workout 'Tuesday tempo' with 3 × 2 min at 22 spm, 1 min rest."*
 - **Progressive intensity** — *"Build a workout: 2 blocks of 1-2-1-3-1-4 minutes, each interval 0.1s/500m faster than the previous, 4 min rest between blocks."*
 - **Results** — *"Show my last few ErgZone results."*
+- **Profile** — *"Set my max heart rate to 186."*
 - **Analysis** — *"Analyze my last result: pace, SPI and HR zone per interval."*
 - **Stats** — *"How many meters did I row this month?"*
 - **Tidy up** — *"Delete the workout 'Tuesday tempo'."*
