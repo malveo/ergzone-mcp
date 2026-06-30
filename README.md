@@ -56,6 +56,7 @@ Prefer not to store your password? Use `ERGZONE_SESSION_TOKEN` instead (copied f
 
 | Tool | What it does |
 |------|------|
+| `version` | server name + version |
 | `auth_check` | who am I |
 | `update_profile` | set max HR, resting HR, weight, weight unit |
 | `list_workouts` / `get_workout` | browse workouts |
@@ -69,6 +70,7 @@ Prefer not to store your password? Use `ERGZONE_SESSION_TOKEN` instead (copied f
 Just talk to Claude in plain language:
 
 - **Check it works** — *"Am I connected to ErgZone? Who am I?"*
+- **Version** — *"What ErgZone MCP version is running?"*
 - **Browse** — *"List my ErgZone workouts."*
 - **Build (preview, nothing saved)** — *"Show me an SPM ladder from 16 to 30 spm, 1 min each."*
 - **Create** — *"Create a workout 'Tuesday tempo' with 3 × 2 min at 22 spm, 1 min rest."*

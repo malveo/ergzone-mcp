@@ -1,8 +1,27 @@
 // MCP tool definitions (Tier 1: core training + builder + basic analysis).
 // Each tool: { name, description, inputSchema, handler, write?, destructive? }
 
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { dirname, join } from 'node:path';
+
 import { gql, todayISO, resolveTrackId } from './client.mjs';
 import { resolveIntervals, validateIntervals } from './intervals.mjs';
+
+// Server version, read once at load. Source of truth is manifest.json (CI syncs it
+// to the real release version before packing the .mcpb); fall back to package.json.
+const SERVER_VERSION = (() => {
+  const root = join(dirname(fileURLToPath(import.meta.url)), '..');
+  for (const file of ['manifest.json', 'package.json']) {
+    try {
+      const v = JSON.parse(readFileSync(join(root, file), 'utf8')).version;
+      if (v && v !== '0.0.0' && v !== '0.0.0-development') return v;
+    } catch {
+      /* ignore, try next */
+    }
+  }
+  return '0.0.0-development';
+})();
 
 // ---- analysis helpers ----
 
@@ -34,6 +53,15 @@ const INTERVAL_DEF = `type value spm spmMax rest undefRest notes restNotes sugge
 const INTERVAL_RESULT = `type value rest distance avgPace avgSpm maxSpm avgWatts maxWatts calories avgHr maxHr minHr hrZones strokeCount rateConsistency driveLength driveTime recoveryTime avgForce peakForce avgDragFactor`;
 
 export const TOOLS = [
+  {
+    name: 'version',
+    description: 'Return the ergzone-mcp server name and version.',
+    inputSchema: { type: 'object', properties: {} },
+    async handler() {
+      return { name: 'ergzone-mcp', version: SERVER_VERSION };
+    },
+  },
+
   {
     name: 'auth_check',
     description: 'Verify the token and show the logged-in user (id, name, email, max/resting HR, weight).',
