@@ -109,12 +109,20 @@ export function todayISO() {
   return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
 }
 
+// A real ErgZone track id is a UUID. This guards against an unresolved MCPB
+// placeholder (e.g. the literal "${user_config.track_id}" when the user leaves
+// the field blank), which is truthy and would otherwise poison resolution and
+// disable the auto-detect fallback.
+const isValidTrackId = (v) =>
+  typeof v === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v.trim());
+
 // Resolve the track to use, in order: explicit arg -> ERGZONE_TRACK_ID -> auto-discover
-// the user's personal "My Workouts" track. Discovery result is cached in memory.
+// the user's personal "My Workouts" track. Invalid/placeholder values are ignored
+// so the auto-detect path still runs. Discovery result is cached in memory.
 let trackIdCache = null;
 export async function resolveTrackId(explicit) {
-  if (explicit) return explicit;
-  if (process.env.ERGZONE_TRACK_ID) return process.env.ERGZONE_TRACK_ID;
+  if (isValidTrackId(explicit)) return explicit.trim();
+  if (isValidTrackId(process.env.ERGZONE_TRACK_ID)) return process.env.ERGZONE_TRACK_ID.trim();
   if (trackIdCache) return trackIdCache;
 
   const data = await gql('query{ tracks(onlyAdmin:true){ id name trackMode type isOwner } }');
